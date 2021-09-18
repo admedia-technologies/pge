@@ -16,8 +16,12 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.7/css/jquery.dataTables.min.css">
+
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+
+
 </head>
 <body>
     <div id="app">
@@ -79,5 +83,20 @@
             @yield('content')
         </main>
     </div>
+
+
+  <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery.js"></script>
+        <!-- DataTables -->
+        <script src="https://cdn.datatables.net/1.10.7/js/jquery.dataTables.min.js"></script>
+        <!-- Bootstrap JavaScript -->
+        <script src="https://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <!-- App scripts -->
+
+
+
+<script src="{{asset('js/scripts.js')}}"></script>
+
+
 </body>
 </html>

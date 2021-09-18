@@ -14,7 +14,7 @@
                         </div>
                     @endif
 
-                    <h1>Admin View</h1>
+                    <h1>Registered User View</h1>
 
                     {{ __('You are logged in!') }}
                 </div>

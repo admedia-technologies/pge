@@ -14,8 +14,14 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect(route('login'));
 });
+
+Route::get('/adm/login',[App\Http\Controllers\Admin::class, 'adminloginview'])->name('adminlogin');
+
+Route::get('/users/list',[App\Http\Controllers\HomeController::class, 'userlistingview']);
+
+Route::get('/users/datatable',[App\Http\Controllers\HomeController::class,'userlistdatatable'])->name('userdatatable');
 
 Auth::routes();
 
