@@ -10,7 +10,7 @@ use App\Models\User;
 
 use Yajra\Datatables\Datatables;
 
-
+use Mail;
 
 class HomeController extends Controller
 {
@@ -45,10 +45,28 @@ class HomeController extends Controller
          return view('guestuserview');
     }
 
+
+    public function SendAVE() {
+
+      $data = array("name"=>"GoogleMapApp");
+      
+      Mail::send('mail', $data, function($message) {
+        $user = Auth::user();
+         $message->to($user->email, $user->name)
+         ->subject('Activate Your Account');
+
+         $message->from('aliputyouremail','GoogleMapApp');
+      });
+      
+        
+   }
+
     public function index()
     {
 
         $user = Auth::user();
+
+        if($user->user_status==1){
 
         if($user->role_id == 1)
         {
@@ -62,6 +80,17 @@ class HomeController extends Controller
 
           return  $this->guestuserview();
         }
+
+    }else{
+            
+
+            $this->SendAVE();
+
+            Auth::logout();
+
+            return redirect('/useremail');
+
+    }
 
        
         
@@ -89,6 +118,8 @@ class HomeController extends Controller
         })
         ->make();
     }
+
+
 
    
 }

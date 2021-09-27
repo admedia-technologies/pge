@@ -21,8 +21,13 @@ Route::get('/adm/login',[App\Http\Controllers\Admin::class, 'adminloginview'])->
 
 Route::get('/users/list',[App\Http\Controllers\HomeController::class, 'userlistingview']);
 
+Route::get('useremail',[App\Http\Controllers\Admin::class,'sentemailview'])->name('useremail');
+
+Route::get('averified/{id}',[App\Http\Controllers\Admin::class,'accountverified']);
+
 Route::get('/users/datatable',[App\Http\Controllers\HomeController::class,'userlistdatatable'])->name('userdatatable');
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
