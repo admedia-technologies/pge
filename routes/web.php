@@ -27,6 +27,10 @@ Route::get('averified/{id}',[App\Http\Controllers\Admin::class,'accountverified'
 
 Route::get('/users/datatable',[App\Http\Controllers\HomeController::class,'userlistdatatable'])->name('userdatatable');
 
+Route::post('/postdata',[App\Http\Controllers\Admin::class,'googledatastore']);
+
+Route::post('/getalllocations',[App\Http\Controllers\Admin::class,'getalllocationsbyuserid']);
+
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
