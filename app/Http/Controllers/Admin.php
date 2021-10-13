@@ -73,8 +73,18 @@ class Admin extends Controller
       if(isset($posted_arr[0]['click_event_data']))
       {
           $resp_one = $posted_arr[0]['click_event_data'];
-          $resp_two = $posted_arr[1]['place_info_data'];
+          
 
+          if(isset($posted_arr[1]['place_info_data']))
+          {
+            $resp_two = $posted_arr[1]['place_info_data'];
+          }
+          else{
+            $resp_two['business_status']="NF";
+            $resp_two['formatted_address']="NF";
+            $resp_two['name']="NF";
+            $resp_two['vicinity']="NF";
+          }
 
 
           $data_for_insert = [
@@ -83,10 +93,10 @@ class Admin extends Controller
             'click_event_lng'=>$resp_one['click_event_lng'],
             'click_event_place'=>$resp_one['click_event_plc'],
             'click_event_latlng_both'=>$resp_one['click_event_latlng_both'],
-            'business_status'=>$resp_two['business_status'],
-            'formatted_address'=>$resp_two['formatted_address'],
-            'name'=>$resp_two['name'],
-            'vicinity'=>$resp_two['vicinity'],
+            'business_status'=>(isset($resp_two['business_status']) ? $resp_two['business_status'] : ''),
+            'formatted_address'=>(isset($resp_two['formatted_address']) ? $resp_two['formatted_address'] : ''),
+            'name'=>(isset($resp_two['name']) ? $resp_two['name'] : ''),
+            'vicinity'=>(isset($resp_two['vicinity']) ? $resp_two['vicinity'] : ''),
             'created_at'=>date('Y-m-d H:i:s'),
           ];
 
@@ -103,26 +113,6 @@ class Admin extends Controller
           {
           
           $location_id = DB::table('user_locations')->insertGetId($data_for_insert);
-
-          if(count($resp_two['types']) > 0)
-          {
-            foreach ($resp_two['types'] as $key => $value) {
-                
-                $location_type_arr = [
-            'location_id'=>$location_id,
-            'user_id'=>$user_id,
-            'place_id'=>$resp_one['click_event_plc'],
-            'location_type'=>$value,
-            'created_at'=>date('Y-m-d H:i:s')
-          ];
-
-            DB::table('location_types')->insert($location_type_arr);
-
-            }
-          }
-
-          
-
         
 
             return Response::json(array(

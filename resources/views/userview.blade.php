@@ -135,8 +135,8 @@
 .loc-heading {
     font-size: 15px;
     padding-left: 3px;
-    color: #538ff4;
-    font-weight: normal !important;
+    color:black;
+    font-weight: 900 !important;
 }
 
 .location-container {
@@ -147,6 +147,15 @@
     padding-top: 3px;
     cursor: pointer;
 
+}
+
+.category-container{
+   border-radius: 3px;
+    background: white;
+    margin: 5px;
+    padding-bottom: 3px;
+    padding-top: 3px;
+    cursor: pointer;
 }
 
 @media screen and (max-height: 450px) {
@@ -189,10 +198,10 @@
     margin-top: -45px;
     margin-left: 11px;
     font-size: 29px;">Categories</h3>
-    <div class="categories-list-dev"></div>
+    <div class="categories-list-dev" style="height: 788px;"></div>
 </div>
 
-<div id="mySidenav" class="sidenav">
+<div id="mySidenav" class="sidenav" style="overflow-x: scroll !important;">
   <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
   <h3 class="heading-one" style="position: absolute;
     color: white;

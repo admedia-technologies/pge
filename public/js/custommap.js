@@ -6,6 +6,7 @@ var placeIdArray = [];
 var polylines = [];
 var snappedCoordinates = [];
 var PostedDaraArr = [];
+var MarkersArray = [];
 
 
 
@@ -25,6 +26,60 @@ function closeNav() {
   document.getElementById("mySidenav").style.width = "0";
 }
 
+function createMarker(place) {
+
+ var infowindow = new google.maps.InfoWindow();
+
+  if (!place.geometry || !place.geometry.location) return;
+
+  const marker = new google.maps.Marker({
+    map,
+    position: place.geometry.location,
+  });
+
+  MarkersArray.push(marker);
+
+  google.maps.event.addListener(marker, "click", (data) => {
+    infowindow.setContent(place.name || "");
+    infowindow.open(map);
+    console.log("yes clicked",data.latLng.lat(),data.latLng.lng());
+
+    var e = {
+      latLng: new google.maps.LatLng(data.latLng.lat(), data.latLng.lng())
+    };
+
+google.maps.event.trigger(map, 'click', e);
+
+setTimeout(function(){
+  map.setZoom(16);
+},3000);
+  });
+}
+
+
+function getLocationsandStore(placeType)
+{
+  var pyrmont = new google.maps.LatLng(12.36566,-1.53388);
+
+  var request = {
+    location: pyrmont,
+    radius: '500',
+    type:[placeType]
+  };
+
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch(request, (results, status) =>
+  {
+  if (status == google.maps.places.PlacesServiceStatus.OK) {
+    for (var i = 0; i < results.length; i++) {
+      createMarker(results[i]);
+      console.log("locations",results[i]);
+    }
+  }
+});
+
+}
+
 function initialize() {
   var mapOptions = {
     zoom: 16,
@@ -33,8 +88,11 @@ function initialize() {
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
+  
+
   const service = new google.maps.places.PlacesService(map);
 
+   //getLocationsandStore();
   // Adds a Places search box. Searching for a place will center the map on that
   // location.
   map.controls[google.maps.ControlPosition.RIGHT_TOP].push(
@@ -138,7 +196,8 @@ dirService.route(request, function(result, status) {
         toastr.success("Location Saved Successfully!");
       }
 
-      console.log(resp.code);
+     // console.log(resp.code);
+
 
     }).fail(function(resp){
 
@@ -161,24 +220,24 @@ $.ajax({
         var html =``;
         $(resp.resp).each(function(index,el){
 
-          html+=`<div class="old-elements location-container">
-            <div class="loc-heading">${el.name}</div>
-            <div class="loc-addr">${el.formatted_address}</div>
+          html+=`<div class="old-elements location-container" data-lat="${el.click_event_lat}" data-lng="${el.click_event_lng}">
+            <div class="loc-heading">${el.name=="NF" || el.name=="" ? el.click_event_place : el.name}</div>
+            <div class="loc-addr">${el.formatted_address=="NF" || el.name=="" ? el.click_event_latlng_both : el.formatted_address}</div>
           </div>`;
 
-          console.log(el);
+         // console.log(el);
 
         });
         var htmltwo=``;
         $(resp.resp_two).each(function(index,el){
 
-          htmltwo+=`<div class="old-elements location-container">
-            <div class="loc-heading">${el.location_type}</div>
-            <div class="loc-addr">${el.place_id}</div>
+          htmltwo+=`<div class="old-elements category-container" data-type="${el.location_type}">
+            <div class="loc-heading">${el.location_type.toUpperCase()}</div>
+           
           </div>`;
 
         });
-
+        
         $(".locations-list-dev").html(html);
 
         $(".categories-list-dev").html(htmltwo);
@@ -467,3 +526,35 @@ function drawSnappedPolyline() {
 }
 
 $(window).load(initialize);
+
+$(document).on('click','.location-container',function(resp){
+
+var clat = $(this).attr("data-lat");
+var clng = $(this).attr("data-lng");
+
+ var e = {
+      latLng: new google.maps.LatLng(clat, clng)
+    };
+
+google.maps.event.trigger(map, 'click', e);
+
+setTimeout(function(){
+  map.setZoom(16);
+},3000);
+
+
+});
+
+
+
+$(document).on('click','.category-container',function(resp){
+
+  
+
+  
+
+  var dataType = $(this).attr("data-type");
+
+  getLocationsandStore(dataType);
+  
+});
