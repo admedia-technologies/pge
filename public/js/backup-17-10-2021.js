@@ -10,186 +10,11 @@ var MarkersArray = [];
 var PolyLinesArrDirServices = [];
 
 
-var newDirService ;
-var newDirRender;
-var allRenders = [];
 
-function RenderHighlight(request,cLat,cLng,color)
-{
-var delayFactor =0;
-var polyline = new google.maps.Polyline({
-    strokeColor:color, //'#C00'
-    strokeOpacity: 0.7,
-    strokeWeight: 3
-    });
-
-  PolyLinesArrDirServices.push(polyline);
-
-var dirService = new google.maps.DirectionsService();
-var dirRenderer = new google.maps.DirectionsRenderer({suppressMarkers: false,preserveViewport:true});
-
-allRenders.push(dirRenderer);
-
-newDirService = dirService;
-newDirRender = dirRenderer;
-
-dirRenderer.setMap(map);
-dirRenderer.setOptions({polylineOptions: polyline}); 
-
-
-dirService.route(request, function(result, status) {
-  if (status == google.maps.DirectionsStatus.OK) {
-    dirRenderer.setDirections(result);
-  }else if (status === google.maps.DirectionsStatus.OVER_QUERY_LIMIT) {
-            delayFactor++;
-            setTimeout(function () {
-                RenderHighlight(request);
-            }, delayFactor * 1000);
-        } else {
-            console.log("Route: " + status);
-        }
-});
-
-
-}
-
-function InitialHighlight(cLatLng,cLat,cLng,degree,color)
-{
-  
-var pointA = new google.maps.LatLng(cLat,cLng); 
-
-        var request = {
-  origin: google.maps.geometry.spherical.computeOffset(pointA, 300, degree),
-  destination: cLatLng,
-   // waypoints:DirectionsServiceArrList,
-  provideRouteAlternatives: true,
-  travelMode: 'DRIVING',
-  drivingOptions: {
-    departureTime: new Date(/* now, or future date */),
-    trafficModel: 'bestguess'
-  },
-  unitSystem: google.maps.UnitSystem.IMPERIAL
-};
-
-
-RenderHighlight(request,cLat,cLng,color);
-
-}
-
-
-
-function GetNearestRoads(cLat,cLng,apiKey,cLatLng)
-{
-  $.ajax({
-      type:'GET',
-      url:'https://roads.googleapis.com/v1/nearestRoads?points='+cLat+','+cLng+'&key='+apiKey
-    }).done(function(resp){
-
-      $(resp.snappedPoints).each(function(index,el){
-
-        var SingleRoadLat =el.location.latitude;
-        var SingleRoadLng =el.location.longitude;
-        var bothLatLng = SingleRoadLat+","+SingleRoadLng;
-
-         for(var i=0; i<=360; i=i+40) {
-        InitialHighlight(cLatLng,SingleRoadLat,SingleRoadLng,i,'#C00');
-      }
-       // InitialHighlight(cLatLng,SingleRoadLat,SingleRoadLng,0,'#C00');
-        InitialHighlight(cLatLng,SingleRoadLat,SingleRoadLng,-90,'#00FF00');
-        InitialHighlight(cLatLng,SingleRoadLat,SingleRoadLng,180,'#0000FF');
-        InitialHighlight(cLatLng,SingleRoadLat,SingleRoadLng,90,'#8B4513');
-
-      });
-
-
-
-    }).fail(function(resp){
-
-      console.log(resp);
-
-    });
-}
-
-function loadLocationsinit(map)
-{
-  $.ajax({
-      type:'POST',
-      url:$(".resourcedata").attr("data-url-three"),
-      data:'_token='+$(".resourcedata").attr("data-token")
-    }).done(function(resp){
-        $(resp.resp).each(function(index,el){
-
-          var clickLat = el.click_event_lat;
-          var clickLng = el.click_event_lng;
-          var cLatLng = el.click_event_latlng_both;
-          
-        // GetNearestRoads(clickLat,clickLng,apiKey,cLatLng);
-
-         
-         
-         
-
-        });
-
-        //map.setZoom(16);
-
-
-    }).fail(function(resp){
-        console.log(resp);
-    });
-}
-
-
-function GetAllLocations()
-{
-$(document).find(".old-elements-locations").remove();
-$(document).find(".old-elements").remove();
-$.ajax({
-      type:'POST',
-      url:$(".resourcedata").attr("data-url-two"),
-      data:'_token='+$(".resourcedata").attr("data-token")
-    }).done(function(resp){
-
-      if(resp.code == 200)
-      {
-        var html =``;
-        $(resp.resp).each(function(index,el){
-
-          html+=`<div class="old-elements-locations location-container" data-lat="${el.click_event_lat}" data-lng="${el.click_event_lng}">
-            <div class="loc-heading">${el.name=="NF" || el.name=="" ? el.click_event_place : el.name}</div>
-            <div class="loc-addr">${el.formatted_address=="NF" || el.name=="" ? el.click_event_latlng_both : el.formatted_address}</div>
-          </div>`;
-
-         // console.log(el);
-
-        });
-        var htmltwo=``;
-        $(resp.resp_two).each(function(index,el){
-
-          htmltwo+=`<div class="old-elements category-container" data-type="${el.location_type}">
-            <div class="loc-heading">${el.location_type.toUpperCase()}</div>
-           
-          </div>`;
-
-        });
-        
-        $(".locations-list-dev").html(html);
-
-        $(".categories-list-dev").html(htmltwo);
-      }
-
-    }).fail(function(resp){
-
-      console.log(resp);
-
-    }); 
-
-}
 
 
 function openNav() {
   document.getElementById("mySidenav").style.width = "250px";
-  GetAllLocations();
 }
 function openNavOne() {
   document.getElementById("mySidenavOne").style.width = "250px";
@@ -271,8 +96,6 @@ function initialize() {
   };
   map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
-
-
   
 
   const service = new google.maps.places.PlacesService(map);
@@ -343,13 +166,8 @@ function highlight(cLatLng,cLat,cLng,degree,color)
 
   PolyLinesArrDirServices.push(polyline);
 
-var dirService = new google.maps.DirectionsService();
+  var dirService = new google.maps.DirectionsService();
 var dirRenderer = new google.maps.DirectionsRenderer({suppressMarkers: false});
-
-allRenders.push(dirRenderer);
-
-newDirService = dirService;
-newDirRender = dirRenderer;
 
 dirRenderer.setMap(map);
 dirRenderer.setOptions({polylineOptions: polyline}); 
@@ -389,9 +207,7 @@ dirService.route(request, function(result, status) {
         toastr.success("Location Saved Successfully!");
 
         setTimeout(function(){
-
   map.setZoom(16);
-GetAllLocations();
 },2000);
       }
 
@@ -405,25 +221,61 @@ GetAllLocations();
     }); 
   }
 
-  
+  function GetAllLocations()
+{
+$(document).find(".old-elements").remove();
+$.ajax({
+      type:'POST',
+      url:$(".resourcedata").attr("data-url-two"),
+      data:'_token='+$(".resourcedata").attr("data-token")
+    }).done(function(resp){
+
+      if(resp.code == 200)
+      {
+        var html =``;
+        $(resp.resp).each(function(index,el){
+
+          html+=`<div class="old-elements location-container" data-lat="${el.click_event_lat}" data-lng="${el.click_event_lng}">
+            <div class="loc-heading">${el.name=="NF" || el.name=="" ? el.click_event_place : el.name}</div>
+            <div class="loc-addr">${el.formatted_address=="NF" || el.name=="" ? el.click_event_latlng_both : el.formatted_address}</div>
+          </div>`;
+
+         // console.log(el);
+
+        });
+        var htmltwo=``;
+        $(resp.resp_two).each(function(index,el){
+
+          htmltwo+=`<div class="old-elements category-container" data-type="${el.location_type}">
+            <div class="loc-heading">${el.location_type.toUpperCase()}</div>
+           
+          </div>`;
+
+        });
+        
+        $(".locations-list-dev").html(html);
+
+        $(".categories-list-dev").html(htmltwo);
+      }
+
+    }).fail(function(resp){
+
+      console.log(resp);
+
+    }); 
+
+}
 
 GetAllLocations();
 
   map.addListener("click", (mapsMouseEvent) => {
 
     //reset here
-    // if(newDirRender){
-    // newDirRender.setMap(null);
-    // }
+// directionDisplay = new google.maps.DirectionsRenderer();
+// directionDisplay.suppressMarkers = true;
+// directionDisplay.setMap(null);
+    
 
-    if(allRenders.length > 0)
-    {
-      for (var i = 0; i < allRenders.length; i++) {
-        allRenders[i].setMap(null);
-      }
-    }
-
-    console.log("all render",allRenders);
 
 
     PostedDaraArr = [];
@@ -492,17 +344,10 @@ GetAllLocations();
         var SingleRoadLng =el.location.longitude;
         var bothLatLng = SingleRoadLat+","+SingleRoadLng;
 
-      for(var i=0; i<=360; i=i+40) {
-        highlight(cLatLng,SingleRoadLat,SingleRoadLng,i,'#C00');
-      }
+        highlight(cLatLng,SingleRoadLat,SingleRoadLng,0,'#C00');
         highlight(cLatLng,SingleRoadLat,SingleRoadLng,-90,'#00FF00');
         highlight(cLatLng,SingleRoadLat,SingleRoadLng,180,'#0000FF');
         highlight(cLatLng,SingleRoadLat,SingleRoadLng,90,'#8B4513');
-
-        // highlight(cLatLng,SingleRoadLat,SingleRoadLng,30,'#C00');
-        // highlight(cLatLng,SingleRoadLat,SingleRoadLng,60,'#C00'); 
-        //  highlight(cLatLng,SingleRoadLat,SingleRoadLng,120,'#C00');
-        //  highlight(cLatLng,SingleRoadLat,SingleRoadLng,150,'#C00'); 
 
         // highlight(cLatLng,SingleRoadLat,SingleRoadLng,180);
         // highlight(cLatLng,SingleRoadLat,SingleRoadLng,225);
@@ -568,6 +413,7 @@ postData(PostedDaraArr);
       //console.log("Click Event | Response | ",mapsMouseEvent.latLng.lat()+","+mapsMouseEvent.latLng.lng());
 
       console.log(PostedDaraArr);
+
 
     
 
@@ -737,16 +583,5 @@ $(document).on('click','.category-container',function(resp){
   var dataType = $(this).attr("data-type");
 
   getLocationsandStore(dataType);
-
-
   
 });
-
-
-setTimeout(function(){
-
-loadLocationsinit(map);
-
-
-
-},2000);

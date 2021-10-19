@@ -26,9 +26,31 @@ var i=1;
             { data: 'name', name: 'name' },
             { data: 'email', name: 'email' },
             { data: 'status', name: 'status' },
-            { data: 'date', name: 'created_at' }
+            { data: 'date', name: 'created_at' },
+            { data: 'locations', name: 'locations', searchable: false, orderable: false }
         ]
     });
 
+
+$("#UsersLocationsList").DataTable({
+        
+        ajax: {
+            type:'get',
+            url:$('#UsersLocationsList').attr("data-url"),
+            data:function(d){
+                 d.user_id = $('#UsersLocationsList').attr("data-id");
+            },
+            processing: true,
+        serverSide: true,
+        },
+        columns: [
+            {"render": function() {return i++;}},
+            { data: 'formatted_address', name: 'formatted_address' },
+            { data: 'click_event_lat', name: 'click_event_lat' },
+            { data: 'click_event_lat', name: 'click_event_lng' },
+            { data: 'created_at', name: 'created_at' },
+            
+        ]
+    });
 
 });

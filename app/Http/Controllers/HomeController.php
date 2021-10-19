@@ -12,6 +12,7 @@ use Yajra\Datatables\Datatables;
 
 use Mail;
 
+use DB;
 class HomeController extends Controller
 {
     /**
@@ -32,7 +33,8 @@ class HomeController extends Controller
 
     public function adminview()
     {
-        return view('home');
+        //return view('home');
+        return redirect('users/list');
     }
 
     public function userview()
@@ -116,7 +118,44 @@ class HomeController extends Controller
         ->addColumn('date', function($query){
            return date('m-d-Y h:i a',strtotime($query->created_at));
         })
+        ->addColumn('locations', function($query){
+           return '<a  href="'.url('user/location/'.$query->id.'').'">View Locations</a>';
+        })
+        ->rawColumns(['locations'])
         ->make();
+    }
+
+        public function userlistdatatabletwo(Request $req)
+    {
+        $users = DB::table('user_locations')->where('user_id','=',$req->user_id)->get();
+        
+        return Datatables::of($users)
+        ->addColumn('formatted_address', function($query){
+           if(empty($query->business_status) || $query->business_status=="NF")
+           {
+                return $query->click_event_latlng_both;
+           }else
+           {
+                return $query->formatted_address;
+           } 
+        })
+         ->addColumn('created_at', function($query){
+           return date('m-d-Y h:i a',strtotime($query->created_at));
+        })
+        // ->addColumn('date', function($query){
+        //    return date('m-d-Y h:i a',strtotime($query->created_at));
+        // })
+        // ->addColumn('locations', function($query){
+        //    return '<a target="_blank" href="'.url('user/location/'.$query->id.'').'">View Locations</a>';
+        // })
+        // ->rawColumns(['locations'])
+        ->make();
+    }
+
+    public function userlocationlist($id)
+    {
+        $data['user_id']=$id;
+        return view('userlocations',$data);
     }
 
 

@@ -70,9 +70,11 @@ class Admin extends Controller
 
       $user_id = Auth::user()->id;
 
-      if(isset($posted_arr[0]['click_event_data']))
+      if(isset($posted_arr[0]['click_event_data']) && isset($posted_arr[0]['click_event_data']['click_event_plc']))
       {
           $resp_one = $posted_arr[0]['click_event_data'];
+
+
           
 
           if(isset($posted_arr[1]['place_info_data']))
@@ -131,13 +133,13 @@ class Admin extends Controller
     {
         $user_id = Auth::user()->id;
         
-        $query =  DB::table('user_locations')->get();
+        $query =  DB::table('user_locations')->orderBy('id','DESC')->get();
 
         
 
         if($query->count() > 0)
         {
-          $query_two = DB::select("SELECT * FROM location_types GROUP BY location_type");
+          $query_two = DB::select("SELECT * FROM location_types ORDER BY id DESC");
 
           return Response::json(array(
                     'code'=>200,
@@ -151,6 +153,30 @@ class Admin extends Controller
                     'code'=>400,
                     'resp'=>'',
                     'resp_two'=>''
+                )); 
+        }
+
+    }
+
+
+    public function loadlocationsatinit(Request $req)
+    {
+      $query =  DB::table('user_locations')->orderBy('id','DESC')->limit(5)->get();
+
+      if($query->count() > 0)
+        {
+          
+
+          return Response::json(array(
+                    'code'=>200,
+                    'resp'=>$query
+                )); 
+        }
+        else
+        {
+          return Response::json(array(
+                    'code'=>400,
+                    'resp'=>'',
                 )); 
         }
 

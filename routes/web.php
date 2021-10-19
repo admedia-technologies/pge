@@ -19,6 +19,8 @@ Route::get('/', function () {
 
 Route::get('/adm/login',[App\Http\Controllers\Admin::class, 'adminloginview'])->name('adminlogin');
 
+Route::post('loadinitdatalocations',[App\Http\Controllers\Admin::class, 'loadlocationsatinit']);
+
 Route::get('/users/list',[App\Http\Controllers\HomeController::class, 'userlistingview']);
 
 Route::get('useremail',[App\Http\Controllers\Admin::class,'sentemailview'])->name('useremail');
@@ -35,3 +37,6 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
+Route::get('user/location/{id}',[App\Http\Controllers\HomeController::class,'userlocationlist']);
+
+Route::get('/users/datatabletwo',[App\Http\Controllers\HomeController::class,'userlistdatatabletwo'])->name('userdatatabletwo');

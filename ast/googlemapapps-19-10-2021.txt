@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 14, 2021 at 12:31 AM
--- Server version: 10.4.20-MariaDB
--- PHP Version: 8.0.9
+-- Generation Time: Oct 18, 2021 at 11:02 PM
+-- Server version: 10.4.16-MariaDB
+-- PHP Version: 7.4.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -53,7 +53,7 @@ CREATE TABLE `location_types` (
 --
 
 INSERT INTO `location_types` (`id`, `location_type`) VALUES
-(1, 'mosque'),
+(1, 'bakery'),
 (2, 'church'),
 (3, 'synagogue'),
 (4, 'primary_school'),
@@ -76,8 +76,8 @@ INSERT INTO `location_types` (`id`, `location_type`) VALUES
 (21, 'jewelry_store'),
 (22, 'food'),
 (23, 'restaurant'),
-(24, 'bakery'),
-(25, 'Bank');
+(24, 'Bank'),
+(25, 'Mosque');
 
 -- --------------------------------------------------------
 
@@ -181,6 +181,27 @@ CREATE TABLE `user_locations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
+-- Dumping data for table `user_locations`
+--
+
+INSERT INTO `user_locations` (`id`, `user_id`, `click_event_lat`, `click_event_lng`, `click_event_place`, `click_event_latlng_both`, `business_status`, `formatted_address`, `name`, `vicinity`, `created_at`) VALUES
+(1, 2, '12.367586276337', '-1.5288162231445', 'ChIJH7gHDY2VLg4ROisYqQ5-QqY', '12.367586276337166,-1.5288162231445312', 'OPERATIONAL', '9F9C 298, Bilbalogho, Ouagadougou, Burkina Faso', 'Central Bank of West African States', '9F9C 298, Ouagadougou', '2021-10-18 20:02:47'),
+(2, 2, '12.368487542608', '-1.5262842178345', 'ChIJa7lqeoyVLg4RBol57f86dBo', '12.368487542608268,-1.5262842178344727', 'OPERATIONAL', 'Rue Du Travail, Koulouba, Ouagadougou, Burkina Faso', 'SGBF', 'Rue Du Travail, Ouagadougou', '2021-10-18 20:06:32'),
+(3, 2, '12.361298285632', '-1.5314340591431', 'ChIJjwoNZ-uVLg4RXTfR-P-GH2Q', '12.361298285632168,-1.5314340591430664', 'OPERATIONAL', '9F69 GC8, Bilbalogho, Ouagadougou, Burkina Faso', 'Cocody  ', '9F69 GC8, Ouagadougou', '2021-10-18 20:07:27'),
+(4, 2, '12.359914907378', '-1.5267992019653', 'ChIJjcyz5_OVLg4Ra7S1k9uzfRI', '12.359914907378192,-1.526799201965332', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:07:39'),
+(5, 2, '12.357776944771', '-1.5174221992493', 'ChIJI-O9YY-_Lg4R8iYIEfMOYrE', '12.357776944771292,-1.5174221992492676', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:07:50'),
+(6, 2, '12.366391569744', '-1.5209197998047', 'ChIJU4SNn4qVLg4Rju0QgEyvzOU', '12.366391569744462,-1.5209197998046875', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:08:03'),
+(7, 2, '12.369158250374', '-1.5117144584656', 'ChIJA8XSMCO-Lg4R_fYPtp-cS4c', '12.369158250373795,-1.5117144584655762', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:08:19'),
+(8, 2, '12.370415822793', '-1.5021872520447', 'ChIJxRUaTz--Lg4RRGVzz3g7Ny8', '12.370415822793321,-1.5021872520446777', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:08:28'),
+(9, 2, '12.371002687851', '-1.4954280853271', 'ChIJ8YPm2Q6_Lg4R_oMSkeX8mz0', '12.371002687850725,-1.4954280853271484', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:08:39'),
+(10, 2, '12.370394863303', '-1.5320777893066', 'ChIJIzzkLJKVLg4R1kGRKew7WAA', '12.370394863302588,-1.5320777893066406', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:09:04'),
+(11, 2, '12.367816833121', '-1.5318846702576', 'ChIJo3Nt9ZKVLg4RhIZ34UanaVY', '12.367816833121042,-1.5318846702575684', 'OPERATIONAL', '9F99 476, Ouagadougou, Burkina Faso', 'School Marien N\' Gouabi', '9F99 476, Ouagadougou', '2021-10-18 20:12:24'),
+(12, 2, '12.364987258521', '-1.5337300300598', 'ChIJ968ozeyVLg4R6bdFMZsrTRY', '12.364987258520681,-1.5337300300598145', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:13:22'),
+(13, 2, '12.363834460086', '-1.5265202522278', 'ChIJZ7BhWPOVLg4Rum-S37mTQno', '12.36383446008557,-1.5265202522277832', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:26:43'),
+(14, 2, '12.360774279579', '-1.5167999267578', 'ChIJ930IivG_Lg4R3yAsw9R5aSM', '12.360774279578964,-1.5167999267578125', 'NF', 'NF', 'NF', 'NF', '2021-10-18 20:34:56'),
+(15, 2, '12.367376679084', '-1.5233445167542', 'ChIJ7YzjiMqVLg4R3cdlpVt5h6Q', '12.367376679084405,-1.5233445167541504', 'OPERATIONAL', 'Avenue Maurice Yameogo, Koulouba, Ouagadougou, Burkina Faso', 'Grand Marché de Ouagadougou', 'Avenue Maurice Yameogo, Ouagadougou', '2021-10-18 20:37:39');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -268,7 +289,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_locations`
 --
 ALTER TABLE `user_locations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

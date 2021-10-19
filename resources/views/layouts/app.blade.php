@@ -41,7 +41,7 @@
                      @else
                     <ul class="navbar-nav mr-auto">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{url('users/list')}}">Users</a>
+                            <a class="nav-link" href="{{url('users/list')}}">Dashboard</a>
                         </li>
                     </ul>
                     @endguest

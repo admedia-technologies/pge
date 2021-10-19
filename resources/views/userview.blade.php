@@ -158,6 +158,11 @@
     cursor: pointer;
 }
 
+.locations-list-dev{
+  min-height: 885px !important;
+    max-height: atuo !important;
+    height: auto !important;
+}
 @media screen and (max-height: 450px) {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
@@ -176,6 +181,7 @@
   </head>
 
   <body>
+
     <div class="main-content">
       <div class="toggle-location">
          
@@ -222,7 +228,9 @@
     <div id="map-rounded"></div>
 
     <div id="bar">
-  <p class="auto resourcedata" data-url-two="{{url('getalllocations')}}" data-token="{{ csrf_token() }}" data-url="{{url('postdata')}}" style="margin: 0px !important;">
+  <p class="auto resourcedata" 
+  data-url-two="{{url('getalllocations')}}" 
+  data-url-three="{{url('loadinitdatalocations')}}" data-token="{{ csrf_token() }}" data-url="{{url('postdata')}}" style="margin: 0px !important;">
 
 <div class="container-one" style="margin: 0px !important;">
       <div class="username-txt" style="font-size: 17px;
