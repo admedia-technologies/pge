@@ -57,7 +57,7 @@ class HomeController extends Controller
          $message->to($user->email, $user->name)
          ->subject('Activate Your Account');
 
-         $message->from('aliputyouremail','GoogleMapApp');
+         $message->from('info@admedia-technologies.com','GoogleMapApp');
       });
       
         
