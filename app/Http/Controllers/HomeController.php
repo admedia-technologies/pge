@@ -39,7 +39,7 @@ class HomeController extends Controller
 
     public function userview()
     {
-        return view('userview');
+        return view('mapview');
     }
 
     public function guestuserview()
@@ -51,7 +51,7 @@ class HomeController extends Controller
     public function SendAVE() {
 
       $data = array("name"=>"GoogleMapApp");
-      
+
       Mail::send('mail', $data, function($message) {
         $user = Auth::user();
          $message->to($user->email, $user->name)
@@ -59,8 +59,8 @@ class HomeController extends Controller
 
          $message->from('info@admedia-technologies.com','GoogleMapApp');
       });
-      
-        
+
+
    }
 
     public function index()
@@ -84,7 +84,7 @@ class HomeController extends Controller
         }
 
     }else{
-            
+
 
             $this->SendAVE();
 
@@ -94,14 +94,14 @@ class HomeController extends Controller
 
     }
 
-       
-        
+
+
        // return view('home');
     }
 
     public function userlistingview()
     {
-       
+
        $data['list'] = User::where('role_id','>',1)->get();
 
         return view('userslist',$data);
@@ -110,7 +110,6 @@ class HomeController extends Controller
     public function userlistdatatable()
     {
         $users = User::where('role_id','>',1)->get();
-        
         return Datatables::of($users)
         ->addColumn('status', function($query){
            return $query->user_status==1 ? 'Active' : 'Inactive';
@@ -121,14 +120,18 @@ class HomeController extends Controller
         ->addColumn('locations', function($query){
            return '<a  href="'.url('user/location/'.$query->id.'').'">View Locations</a>';
         })
-        ->rawColumns(['locations'])
+        ->addColumn('actions', function($query){
+           $deleteTxt = "Voulez-vous vraiment supprimer cet utilisateur?";
+           return '<button class="btn btn-icon btn-rounded btn-light" title="Modifier" data-toggle="modal" data-target="#modal-edit" value="'.$query->id.'" onClick="fill_user_fields(this.value)"><i class="fas fa-edit"></i></button>  <a href="'.url('user/delete/'.$query->id.'').'" class="btn btn-icon btn-rounded btn-light" title="Supprimer" id="'.$deleteTxt.'" onClick="return confirm(this.id)"><i class="fas fa-trash"></i></a>';
+        })
+        ->rawColumns(['locations', 'actions'])
         ->make();
     }
 
         public function userlistdatatabletwo(Request $req)
     {
         $users = DB::table('user_locations')->where('user_id','=',$req->user_id)->get();
-        
+
         return Datatables::of($users)
         ->addColumn('formatted_address', function($query){
            if(empty($query->business_status) || $query->business_status=="NF")
@@ -137,28 +140,30 @@ class HomeController extends Controller
            }else
            {
                 return $query->formatted_address;
-           } 
+           }
         })
-         ->addColumn('created_at', function($query){
+        ->addColumn('created_at', function($query){
            return date('m-d-Y h:i a',strtotime($query->created_at));
         })
-        // ->addColumn('date', function($query){
-        //    return date('m-d-Y h:i a',strtotime($query->created_at));
-        // })
-        // ->addColumn('locations', function($query){
-        //    return '<a target="_blank" href="'.url('user/location/'.$query->id.'').'">View Locations</a>';
-        // })
-        // ->rawColumns(['locations'])
+        ->addColumn('actions', function($query){
+           $deleteTxt = "Voulez-vous vraiment supprimer cette localisation?";
+           return '<button class="btn btn-icon btn-rounded btn-light" title="Modifier" data-toggle="modal" data-target="#modal-edit" value="'.$query->id.'" onClick="fill_location_fields(this.value)"><i class="fas fa-edit"></i></button>  <a href="'.url('location/delete/'.$query->id.'').'" class="btn btn-icon btn-rounded btn-light" title="Supprimer" id="'.$deleteTxt.'" onClick="return confirm(this.id)"><i class="fas fa-trash"></i></a>';
+        })
+        ->rawColumns(['actions'])
         ->make();
     }
 
     public function userlocationlist($id)
     {
+        $categories = DB::table("location_types")->get();
         $data['user_id']=$id;
-        return view('userlocations',$data);
+        return view('userlocations', compact("data","categories"));
+    }
+
+    public function mapview()
+    {
+        return view('userview');
     }
 
 
-
-   
 }
