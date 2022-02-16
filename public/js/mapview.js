@@ -463,10 +463,7 @@ function initialize() {
 
         dirService.route(request, function(result, status) {
             if (status == google.maps.DirectionsStatus.OK) {
-                // console.log(result.routes[0].legs[0].distance.value);
-                if (result.routes[0].legs[0].distance.value <= 300) {
-                    dirRenderer.setDirections(result);
-                }
+                dirRenderer.setDirections(result);
             }
         });
     }
@@ -598,7 +595,8 @@ function initialize() {
                     ReductionDegree += 10;
                     if (ReductionDegree >= 360 && radius >= 45) {
                         ReductionDegree = 0;
-                        radius = radius - 15;
+                        radius = radius - 100;
+                        clearInterval(inter);
                         toastr.success("Veuillez patienter, les tracés sont toujours en cours de traitement...");
                     }
                     // console.log("************************************Dégré = " + ReductionDegree + " et Rayon = " + radius);
