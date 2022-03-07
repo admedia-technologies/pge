@@ -248,6 +248,15 @@ function GetAllLocations() {
 
             });
 
+            var html3 = ``;
+            $(resp.resp_two).each(function(index, el) {
+
+                html3 += `<option value="${el.id}">${el.location_type}</option>`;
+
+            });
+
+            $("#location_categories").html(html3);
+
             $(".locations-list-dev").html(html);
 
             $(".categories-list-dev").html(htmltwo);
@@ -461,28 +470,100 @@ function initialize() {
             unitSystem: google.maps.UnitSystem.IMPERIAL
         };
 
-        dirService.route(request, function(result, status) {
-            if (status == google.maps.DirectionsStatus.OK) {
-                dirRenderer.setDirections(result);
+
+        var myJSONText = JSON.stringify(request);
+
+        $.ajax({
+            type: "GET",
+            url: '/google_routs', // This is what I have updated
+            // url: 'http://localhost/laravel-marker/drow-map.php', 
+            data: { origin: myJSONText },
+            dataType:'json',
+            success: function( resp ) {
+                resp.routes = typecastRoutes(resp.routes);
+                resp.request = request;
+
+                if (resp.routes[0].legs[0].distance.value <= 300) {
+                dirRenderer.setDirections(resp);
+                }
+                // console.log(resp);
+            },
+            error: function(e) {
+                console.log(e);
             }
         });
+
+ 
+
+        // dirService.route(request, function(result, status) {
+        //     if (status == google.maps.DirectionsStatus.OK) {
+        //         // console.log(result.routes[0].legs[0].distance.value);
+        //         console.log(result);
+
+        //         // if (result.routes[0].legs[0].distance.value <= 300) {
+        //             dirRenderer.setDirections(result);
+        //         // }
+        //     }
+        // });
     }
 
+
+            function typecastRoutes(routes){
+                routes.forEach(function(route){
+                    route.bounds = asBounds(route.bounds);
+                    // I don't think `overview_path` is used but it exists on the
+                    // response of DirectionsService.route()
+                    route.overview_path = asPath(route.overview_polyline);
+                    route.overview_polyline = route.overview_polyline.points;
+
+                    route.legs.forEach(function(leg){
+                        leg.start_location = asLatLng(leg.start_location);
+                        leg.end_location   = asLatLng(leg.end_location);
+
+                        leg.steps.forEach(function(step){
+                            step.start_location = asLatLng(step.start_location);
+                            step.end_location   = asLatLng(step.end_location);
+                            step.path = asPath(step.polyline);
+                            step.travel_mode = "WALKING";
+                        });
+
+                    });
+                });
+
+                return routes;
+            }
+
+            function asBounds(boundsObject){
+                return new google.maps.LatLngBounds(asLatLng(boundsObject.southwest),
+                    asLatLng(boundsObject.northeast));
+            }
+
+            function asLatLng(latLngObject){
+                return new google.maps.LatLng(latLngObject.lat, latLngObject.lng);
+            }
+
+            function asPath(encodedPolyObject){
+                return google.maps.geometry.encoding.decodePath( encodedPolyObject.points );
+            }
+
+
+
     function postData(PostedDaraArr) {
+        
         $.ajax({
             type: 'POST',
             url: $(".resourcedata").attr("data-url"),
             data: '_token=' + $(".resourcedata").attr("data-token") + '&posted_data=' + JSON.stringify(PostedDaraArr)
         }).done(function(resp) {
-
+            console.log(resp);
             if (resp.code == 200) {
                 toastr.success("Location Saved Successfully!");
 
-                setTimeout(function() {
+                // setTimeout(function() {
 
-                    map.setZoom(16);
-                    GetAllLocations();
-                }, 2000);
+                //     map.setZoom(16);
+                //     GetAllLocations();
+                // }, 5000);
             }
 
             // console.log(resp.code);
@@ -494,6 +575,42 @@ function initialize() {
     }
 
     GetAllLocations();
+
+    $(".close").click(function(){
+        $('.overlay').fadeOut();
+    });
+
+    $("button#save_location").click(function(){
+        
+        var location_categories = $('#location_categories').val();
+        PostedDaraArr[0].click_event_data.location_categories = location_categories;
+        PostedDaraArr[0].click_event_data.click_event_plc = place_id;
+            
+        postData(PostedDaraArr);
+        $('.overlay').fadeOut();
+
+    });
+
+    var place_id = "";
+    function get_place_id(latitude,longitude){
+        var geocoder = new google.maps.Geocoder;
+
+        var latlng = {lat: parseFloat(latitude), lng: parseFloat(longitude)};
+
+        geocoder.geocode({'location': latlng}, function(results, status) {
+            if (status === google.maps.GeocoderStatus.OK) {
+            if (results[1]) {
+                place_id = results[1].place_id;
+               // console.log(results[1].place_id);
+            } else {
+                window.alert('No results found');
+            }
+            } else {
+            window.alert('Geocoder failed due to: ' + status);
+            }
+        });
+    }
+   
 
     map.addListener("click", (mapsMouseEvent) => {
 
@@ -508,21 +625,29 @@ function initialize() {
         //   }
         // }
 
-        console.log("all render", allRenders);
+        $('.overlay').fadeIn();
+
+        get_place_id( mapsMouseEvent.latLng.lat(),mapsMouseEvent.latLng.lng());
+        // console.log("all render", allRenders);
 
         PostedDaraArr = [];
         var cLat = mapsMouseEvent.latLng.lat();
         var cLng = mapsMouseEvent.latLng.lng();
         var cLatLng = cLat + "," + cLng;
-        var cPlace = mapsMouseEvent.placeId;
+        var cPlace = "ChIJB24l1P-VLg4R0lmCHT4h0mU";    //mapsMouseEvent.placeId;
 
+
+        
+
+       
         console.log('lat: ' + cLat + ', lng: ' + cLng + ', latlng: ' + cLatLng + ', place: ' + cPlace);
 
         var ClickedDataArr = {
             click_event_lat: cLat,
             click_event_lng: cLng,
-            click_event_plc: cPlace,
-            click_event_latlng_both: cLatLng
+            click_event_plc: (cPlace),
+            click_event_latlng_both: cLatLng,
+            location_categories:""
         };
 
         PostedDaraArr.push({ click_event_data: ClickedDataArr });
@@ -542,8 +667,8 @@ function initialize() {
                 place.geometry &&
                 place.geometry.location
             ) {
-                console.log(place, "Places");
-                console.log(place.business_status);
+                // console.log(place, "Places");
+                // console.log(place.business_status);
                 //console.log(status,"satus");
                 var placeInfoArr = {
                     business_status: place.business_status,
@@ -592,19 +717,25 @@ function initialize() {
                 var radius = 300;
                 toastr.success("Veuillez patienter, les tracés sont en cours de traitement...");
                 var inter = setInterval(function() {
+                    // for (var i = 0; i <= 36000; i = i++) { 
                     ReductionDegree += 10;
+
                     if (ReductionDegree >= 360 && radius >= 45) {
                         ReductionDegree = 0;
-                        radius = radius - 100;
-                        clearInterval(inter);
+                        radius = radius - 10;
+                        // clearInterval(inter);
                         toastr.success("Veuillez patienter, les tracés sont toujours en cours de traitement...");
                     }
                     // console.log("************************************Dégré = " + ReductionDegree + " et Rayon = " + radius);
-                    highlight(cLatLng, SingleRoadLat, SingleRoadLng, ReductionDegree, '#C00', radius);
+                   highlight(cLatLng, SingleRoadLat, SingleRoadLng, ReductionDegree, '#C00', radius);
+                    // radius = radius - 50;
+
                     if (radius < 45) {
+                        // break;
                         clearInterval(inter);
                     }
-                }, 2000);
+                // }
+                }, 300);
                 // *********************
 
                 // highlight(cLatLng, SingleRoadLat, SingleRoadLng, -90, '#00FF00');
@@ -664,13 +795,13 @@ function initialize() {
 
             // flightPath.setMap(map);
 
-            postData(PostedDaraArr);
+            //postData(PostedDaraArr);
         }).fail(function(resp) {
             console.log(resp);
         });
 
         //console.log("Click Event | Response | ",mapsMouseEvent.latLng.lat()+","+mapsMouseEvent.latLng.lng());
-        console.log(PostedDaraArr);
+        // console.log(PostedDaraArr);
     });
 
     /**Exp 01 start**/

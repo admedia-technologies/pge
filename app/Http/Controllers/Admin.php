@@ -74,9 +74,6 @@ class Admin extends Controller
       {
           $resp_one = $posted_arr[0]['click_event_data'];
 
-
-
-
           if(isset($posted_arr[1]['place_info_data']))
           {
             $resp_two = $posted_arr[1]['place_info_data'];
@@ -91,6 +88,7 @@ class Admin extends Controller
 
           $data_for_insert = [
             'user_id'=>$user_id,
+            'categories_id'=>$resp_one['location_categories'],
             'click_event_lat'=>$resp_one['click_event_lat'],
             'click_event_lng'=>$resp_one['click_event_lng'],
             'click_event_place'=>$resp_one['click_event_plc'],
