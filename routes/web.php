@@ -35,6 +35,8 @@ Route::post('/getalllocations',[App\Http\Controllers\Admin::class,'getalllocatio
 
 Auth::routes();
 
+Route::get('/google_routs',  [App\Http\Controllers\HomeController::class, 'google_routs']);
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 Route::get('user/location/{id}',[App\Http\Controllers\HomeController::class,'userlocationlist']);
