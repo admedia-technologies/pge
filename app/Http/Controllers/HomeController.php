@@ -165,5 +165,42 @@ class HomeController extends Controller
         return view('userview');
     }
 
+    public function google_routs()
+   {
 
+       $data = json_decode($_GET['origin']);
+       $origin = $data->origin->lat.",".$data->origin->lng;
+       $alternatives = $data->provideRouteAlternatives;
+       $mode = $data->travelMode;
+
+       $unit = $data->unitSystem;
+       $departure_time = strtotime($data->drivingOptions->departureTime);
+       $traffic_model = 'best_guess';
+
+       $url = 'https://maps.googleapis.com/maps/api/directions/json';
+       $url .= '?' . http_build_query([
+           'key' => 'AIzaSyB3ooLNpuPYxeG-NX9j1t-b0XeaHQBHvVs',
+           'origin' => $origin,
+           'destination' => $data->destination,
+           'alternatives' => $alternatives,
+           'mode' => $mode,
+           'units' => $unit,
+           'departure_time' => $departure_time,
+           'traffic_model' => $traffic_model,
+       ]);
+
+       $curl = curl_init($url);
+       curl_setopt($curl, CURLOPT_URL, $url);
+       curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+       //for debug only!
+       curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+       curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+       $resp = curl_exec($curl);
+       curl_close($curl);
+
+       // $resp = array_search('travel_mode', json_decode($resp));
+       return $resp;
+   }
 }
