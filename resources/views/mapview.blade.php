@@ -257,10 +257,10 @@
 
     <div id="popup1" class="overlay">
 	<div class="popup">
-		<h2>Here i am</h2>
+		<h2>Save Location</h2>
 		<span class="close" >&times;</span>
 		<div class="content">
-			Thank to pop me out of that button, but now i'm done so you can close this window.
+			Choose a category to save the current location to.
       <select name="location_categories" id="location_categories" class="form-control">
         <option value="">Select Categories </option>
       </select>
