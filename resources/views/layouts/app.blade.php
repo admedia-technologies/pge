@@ -47,6 +47,9 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{url('users/list')}}">Dashboard</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{url('categorie/list')}}">Categories</a>
+                        </li>
                     </ul>
                     @endguest
 

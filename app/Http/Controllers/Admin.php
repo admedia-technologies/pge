@@ -62,6 +62,15 @@ class Admin extends Controller
         return view('accountverification');
     }
 
+    public function googleisplace()
+    {
+       $place_id =  $_GET['place_id'];
+
+       $check = DB::table('user_locations')->where('click_event_place',$place_id)->get();
+        $check[0]->saveLocation = ($check[0]->saveLocation);
+       return $check;
+    }
+
     public function googledatastore(Request $req)
     {
       $posted_data = $req->posted_data;
@@ -93,17 +102,16 @@ class Admin extends Controller
             'click_event_lng'=>$resp_one['click_event_lng'],
             'click_event_place'=>$resp_one['click_event_plc'],
             'click_event_latlng_both'=>$resp_one['click_event_latlng_both'],
-            'location_type_id'=>(isset($resp_one['location_type_id']) ? $resp_one['location_type_id'] : ''),
+            'location_type_id'=>(isset($resp_one['location_categories']) ? $resp_one['location_categories'] : ''),
             'business_status'=>(isset($resp_two['business_status']) ? $resp_two['business_status'] : ''),
             'formatted_address'=>(isset($resp_two['formatted_address']) ? $resp_two['formatted_address'] : ''),
             'name'=>(isset($resp_two['name']) ? $resp_two['name'] : ''),
             'vicinity'=>(isset($resp_two['vicinity']) ? $resp_two['vicinity'] : ''),
+            'saveLocation'=>(!empty($resp_one['saveLocation']) ? serialize($resp_one['saveLocation']) : 'null'),
             'created_at'=>date('Y-m-d H:i:s'),
           ];
 
-          $check = DB::table('user_locations')
-              ->where('user_id',$user_id)
-              ->where('click_event_place',$resp_one['click_event_plc']);
+          $check = DB::table('user_locations')->where('user_id',$user_id)->where('click_event_place',$resp_one['click_event_plc']);
 
           if($check->count() > 0)
           {

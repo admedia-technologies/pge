@@ -18,7 +18,6 @@ $(document).ready(function() {
     });
 
 
-
     $.noConflict();
     var i = 1;
     $("#UsersDatatable").DataTable({
@@ -59,6 +58,80 @@ $(document).ready(function() {
         ]
     });
 });
+
+
+
+$(document).ready( function () {
+    $('#categories').DataTable();
+} );
+
+function save_categorie() {
+    $("#error_field").html("");
+    $("#success_field").html("");
+    var name = $.trim($("#name").val());
+    if (name == "") {
+        $("#error_field").html("Please complete fields");
+    } else {
+        var request = {name};
+        $.ajax({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            url: "/categorieAdd",
+            method: "POST",
+            dataType: "json",
+            data: { donnee: request },
+            success: function(data) {
+                if (data.status == "SUCCESS") {
+                    $("#success_field").html(data.message);
+                    location.reload();
+                } else {
+                    $("#error_field").html(data.message);
+                }
+            },
+            error: function(err) {
+                console.log(err.responseText);
+                $("#error_field").html("Une erreur inattendue s'est produite lors de l'enregistrement des informations de l'utilisateur");
+            }
+        });
+    }
+}
+
+function edit_categorie() {
+    $("#e_error_field").html("");
+    $("#e_success_field").html("");
+    var id = $.trim($("#e_id").val());
+    var name = $.trim($("#e_name").val());
+    
+    if (name == "") {
+        $("#e_error_field").html("Veuiller remplir tous les champs");
+    } else {
+        var request = { id, name};
+        $.ajax({
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            url: "/categorieAdd",
+            method: "POST",
+            dataType: "json",
+            data: { donnee: request },
+            success: function(data) {
+                if (data.status == "SUCCESS") {
+                    $("#e_success_field").html(data.message);
+                    location.reload();
+                } else {
+                    $("#e_error_field").html(data.message);
+                }
+            },
+            error: function(err) {
+                console.log(err.responseText);
+                $("#e_error_field").html("Une erreur inattendue s'est produite lors de l'enregistrement des informations de l'utilisateur");
+            }
+        });
+    }
+}
+
+function fill_categorie(e) {
+    $("#e_id").val(e.value);
+    $("#e_name").val($(e).attr('val'));
+}
+
 
 function save_user() {
     $("#error_field").html("");

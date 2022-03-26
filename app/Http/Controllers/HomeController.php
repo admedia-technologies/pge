@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 use App\Models\User;
 
+use App\Http\Requests;
+
+use App\Http\Controllers\Controller;
+
 use Yajra\Datatables\Datatables;
 
 use Mail;
@@ -40,6 +44,11 @@ class HomeController extends Controller
     public function userview()
     {
         return view('mapview');
+    }
+
+    public function userview2()
+    {
+        return view('mapview2');
     }
 
     public function guestuserview()
@@ -97,6 +106,97 @@ class HomeController extends Controller
 
 
        // return view('home');
+    }
+
+
+
+    public function index2()
+    {
+
+        $user = Auth::user();
+
+        if($user->user_status==1){
+
+        if($user->role_id == 1)
+        {
+           return $this->adminview();
+        }
+        elseif($user->role_id == 2)
+        {
+           return $this->userview2();
+        }
+        else{
+
+          return  $this->guestuserview();
+        }
+
+    }else{
+
+
+            $this->SendAVE();
+
+            Auth::logout();
+
+            return redirect('/useremail');
+
+    }
+
+
+
+       // return view('home');
+    }
+
+
+
+    public function categorielistingview()
+    {
+       $categories['categories'] = DB::table("location_types")->get();
+       return view('categorielist',$categories);
+    }
+
+    public function categorieAdd(Request $req)
+    {
+       $req = $req->donnee;
+
+      $check = DB::table('location_types')->where('location_type',$req["name"]);
+
+      if($check->count() > 0)
+      {
+        return response()->json([
+         "status" => "FAILED",
+         "message" => "Ce nom existe déjà"
+          ]);
+
+      } else {
+
+       try {
+
+         $data_for_insert = ['location_type' => $req["name"]];
+
+         if(isset($req["id"])){
+            DB::table('location_types')->where('id', $req["id"])->update($data_for_insert);
+         } else {
+             $location_id = DB::table('location_types')->insertGetId($data_for_insert);
+         }
+
+         return response()->json([
+             "status" => "SUCCESS",
+             "message" => "L'utilisateur a été enregistré avec succès"
+         ]);
+         } catch (\Throwable $th) {
+            return response()->json([
+               "status" => "FAILED",
+               "message" => "Une erreur inattendue s'est produite lors de l'enregistrement des informations de l'utilisateur<br>"
+            ]);
+         }
+   }
+
+    }
+
+    public function categorieRemove($id)
+    {
+         DB::table('location_types')->where("id", $id)->delete();
+         return redirect()->back();
     }
 
     public function userlistingview()
@@ -165,7 +265,38 @@ class HomeController extends Controller
         return view('userview');
     }
 
-    public function google_routs()
+
+   //  public function google_routs(){
+
+   //    $data = json_decode($_GET['origin']);
+   //    $origin = $data->origin->lat.",".$data->origin->lng;
+   //    $alternatives = $data->provideRouteAlternatives;
+   //    $mode = $data->travelMode;
+   //    $mode = "WALKING";
+
+   //    $unit = $data->unitSystem;
+   //    $departure_time = strtotime($data->drivingOptions->departureTime);
+   //    $traffic_model = "best_guess";
+
+   //    $url = "https://maps.googleapis.com/maps/api/directions/json?origin=".$origin."&destination=".$data->destination."&alternatives=".$alternatives."&travel_mode=".$mode."&unit=".$unit."&departure_time=".$departure_time."&traffic_model=".$traffic_model."&key=AIzaSyB3ooLNpuPYxeG-NX9j1t-b0XeaHQBHvVs";
+
+   //    $curl = curl_init($url);
+   //    curl_setopt($curl, CURLOPT_URL, $url);
+   //    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+
+   //    //for debug only!
+   //    curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
+   //    curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+   //    $resp = curl_exec($curl);
+   //    curl_close($curl);
+
+   //    // $resp = array_search('travel_mode', json_decode($resp));
+   //    return $resp;
+   //  }
+
+
+   public function google_routs()
    {
 
        $data = json_decode($_GET['origin']);
@@ -203,4 +334,8 @@ class HomeController extends Controller
        // $resp = array_search('travel_mode', json_decode($resp));
        return $resp;
    }
+
+
+
+
 }

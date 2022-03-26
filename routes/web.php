@@ -23,6 +23,11 @@ Route::post('loadinitdatalocations',[App\Http\Controllers\Admin::class, 'loadloc
 
 Route::get('/users/list',[App\Http\Controllers\HomeController::class, 'userlistingview']);
 
+Route::get('/categorie/list',[App\Http\Controllers\HomeController::class, 'categorielistingview']);
+
+Route::post('/categorieAdd',[App\Http\Controllers\HomeController::class, 'categorieAdd']);
+Route::get('/categorie/remove/{id}',[App\Http\Controllers\HomeController::class, 'categorieRemove']);
+
 Route::get('useremail',[App\Http\Controllers\Admin::class,'sentemailview'])->name('useremail');
 
 Route::get('averified/{id}',[App\Http\Controllers\Admin::class,'accountverified']);
@@ -31,13 +36,23 @@ Route::get('/users/datatable',[App\Http\Controllers\HomeController::class,'userl
 
 Route::post('/postdata',[App\Http\Controllers\Admin::class,'googledatastore']);
 
+Route::get('/isplace',[App\Http\Controllers\Admin::class,'googleisplace']);
+
+
 Route::post('/getalllocations',[App\Http\Controllers\Admin::class,'getalllocationsbyuserid']);
 
 Auth::routes();
 
+
 Route::get('/google_routs',  [App\Http\Controllers\HomeController::class, 'google_routs']);
 
+// Route::get('google_routs', 'ProfileController@update');
+
+
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+Route::get('/home2', [App\Http\Controllers\HomeController::class, 'index2'])->name('home2');
+
 
 Route::get('user/location/{id}',[App\Http\Controllers\HomeController::class,'userlocationlist']);
 
