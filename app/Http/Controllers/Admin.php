@@ -15,6 +15,8 @@ use Illuminate\Support\Facades\Hash;
 use Response;
 class Admin extends Controller
 {
+    public $temp_location = [];
+     
      public function adminloginview()
     {
       return view('auth/login');
@@ -62,13 +64,42 @@ class Admin extends Controller
         return view('accountverification');
     }
 
+    public function location_save_meta(Request $req)
+    {
+        $user_id = Auth::user()->id;
+
+        $posted_data = $req->posted_data;
+        $posted_arr  = json_decode($posted_data,true);
+        $place_id =  $posted_arr['place_id'];
+        $location =  $posted_arr['location'];
+        
+        $check = $check = DB::table('user_locations')->where('user_id',$user_id)->where('click_event_place',$place_id);
+        $data = $check->get();
+        $id = $data[0]->id;
+
+        if(!empty($location)){
+            $location_id = DB::table('locations_meta')->insertGetId(['location_id'=>$id,'location_data'=> json_encode($location)]);
+        }
+       
+        return $location_id;
+    }
+
     public function googleisplace()
     {
        $place_id =  $_GET['place_id'];
-
+        $return = [];
        $check = DB::table('user_locations')->where('click_event_place',$place_id)->get();
-        $check[0]->saveLocation = ($check[0]->saveLocation);
-       return $check;
+        // $check[0]->saveLocation = ($check[0]->saveLocation);
+
+        if(isset($check[0]->id)) { 
+            $check = DB::table('locations_meta')->where('location_id',$check[0]->id)->get();
+            foreach ($check as $key => $value) {
+                // $check[$key]->location_data = json_decode($check[$key]->location_data);
+                $temp = json_decode($check[$key]->location_data);
+                $return = array_merge($return, $temp);
+            }
+        }
+       return $return;
     }
 
     public function googledatastore(Request $req)
@@ -107,7 +138,6 @@ class Admin extends Controller
             'formatted_address'=>(isset($resp_two['formatted_address']) ? $resp_two['formatted_address'] : ''),
             'name'=>(isset($resp_two['name']) ? $resp_two['name'] : ''),
             'vicinity'=>(isset($resp_two['vicinity']) ? $resp_two['vicinity'] : ''),
-            'saveLocation'=>(!empty($resp_one['saveLocation']) ? serialize($resp_one['saveLocation']) : 'null'),
             'created_at'=>date('Y-m-d H:i:s'),
           ];
 
@@ -115,6 +145,7 @@ class Admin extends Controller
 
           if($check->count() > 0)
           {
+            $location_id = $check->update($data_for_insert);
             return Response::json(array(
                     'code'=>200
                 ));
@@ -122,8 +153,6 @@ class Admin extends Controller
           {
 
           $location_id = DB::table('user_locations')->insertGetId($data_for_insert);
-
-
             return Response::json(array(
                     'code'=>200
 

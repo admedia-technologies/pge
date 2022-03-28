@@ -432,7 +432,7 @@ function initialize() {
     //   polylines = [];
     //   return false;
     // });
-
+    
     var saveLocation = [];
     function highlight(cLatLng, cLat, cLng, degree, color, distance = 300) {
         var polyline = new google.maps.Polyline({
@@ -483,10 +483,12 @@ function initialize() {
             success: function( resp ) {
                 resp.routes = typecastRoutes(resp.routes);
                 resp.request = request;
-                saveLocation.push(resp);
                 // if (resp.routes[0].legs[0].distance.value <= 300) {
-                dirRenderer.setDirections(resp);
-
+                if(resp.status == 'OK'){
+                    saveLocation.push(resp);
+                    dirRenderer.setDirections(resp);
+                }
+               
                 // }
                 // console.log(resp);
             },
@@ -541,16 +543,16 @@ function initialize() {
                     // I don't think `overview_path` is used but it exists on the
                     // response of DirectionsService.route()
 
-                    // route.overview_path = asPath(route.overview_polyline);
-                    // route.overview_polyline = route.overview_polyline.points;
+                    route.overview_path = asPath(route.overview_polyline);
+                    route.overview_polyline = route.overview_polyline.points;
 
                     route.legs.forEach(function(leg){
-                        // leg.start_location = asLatLng(leg.start_location);
-                        // leg.end_location   = asLatLng(leg.end_location);
+                        leg.start_location = asLatLng(leg.start_location);
+                        leg.end_location   = asLatLng(leg.end_location);
 
                         leg.steps.forEach(function(step){
-                            // step.start_location = asLatLng(step.start_location);
-                            // step.end_location   = asLatLng(step.end_location);
+                            step.start_location = asLatLng(step.start_location);
+                            step.end_location   = asLatLng(step.end_location);
                             step.path = asPath(step.polyline);
                             step.travel_mode = "WALKING";
                         });
@@ -574,6 +576,21 @@ function initialize() {
                 return google.maps.geometry.encoding.decodePath( encodedPolyObject.points );
             }
 
+
+    function save_temp_data(PostedDaraArr) {
+        console.log("in post data");
+        $.ajax({
+            type: 'POST',
+            url: '/location/save/meta',
+            data: '_token=' + $(".resourcedata").attr("data-token") + '&posted_data=' + JSON.stringify(PostedDaraArr)
+        }).done(function(resp) {
+            console.log(resp);
+           
+        }).fail(function(resp) {
+        
+            console.log(resp);
+        });
+    }
 
 
     function postData(PostedDaraArr) {
@@ -628,9 +645,18 @@ function initialize() {
         // var location_categories = $('#location_categories').val();
         PostedDaraArr[0].click_event_data.location_categories = null;
         PostedDaraArr[0].click_event_data.click_event_plc = place_id;
-        PostedDaraArr[0].click_event_data.saveLocation = saveLocation;
-            
         postData(PostedDaraArr);
+
+        var location = [];
+        for (let index = 0; index < saveLocation.length; index++) {
+
+            location.push(saveLocation[index]);
+            if(location.length == 15 || saveLocation.length == index+1){ 
+                save_temp_data({place_id:place_id,location:location});
+                console.log(location);
+                location = [];
+            }
+        }
     }
 
     var place_id = "";
@@ -693,7 +719,6 @@ function initialize() {
             click_event_plc: (cPlace),
             click_event_latlng_both: cLatLng,
             location_categories:"",
-            saveLocation:""
         };
 
         PostedDaraArr.push({ click_event_data: ClickedDataArr });
@@ -760,55 +785,61 @@ function initialize() {
 
                 // ***********
 
-                // $.ajax({
-                //     type: "GET",
-                //     url: '/isplace', // This is what I have updated
-                //     // url: 'http://localhost/laravel-marker/drow-map.php', 
-                //     data: { place_id: 'ChIJwUAKeR--Lg4RCTAWxWHGR_Q' },
-                //     dataType:'json',
-                //     success: function( resp ) {
-                //         console.log('resp');
-                //         console.log(resp);
-                //         if(resp.length){
+                $.ajax({
+                    type: "GET",
+                    url: '/isplace', // This is what I have updated
+                    // url: 'http://localhost/laravel-marker/drow-map.php', 
+                    data: { place_id:place_id }, //'GhIJ9xm8VBG7KEAR3uboTDVu-L8'
+                    dataType:'json',
+                    success: function( resp ) {
+                        console.log('resp');
+                        console.log(resp);
+                        if(resp.length){
+                            $.each( resp , function( key, resplace ) {
+                            isSaveHighlight('#C00', resplace);
+                            });
+                        }
+                        else{
+                            
+                            var ReductionDegree = 0;
+                            var radius = 300;
+                            toastr.success("Veuillez patienter, les tracés sont en cours de traitement...");
+                            var inter = setInterval(function() {
+                                // for (var i = 0; i <= 36000; i = i++) { 
+                                ReductionDegree += 10;
+            
+                                if (ReductionDegree >= 360 && radius >= 45) {
+                                    ReductionDegree = 0;
+                                    radius = radius - 10;
+                                    // clearInterval(inter);
+                                    toastr.success("Veuillez patienter, les tracés sont toujours en cours de traitement...");
+                                }
+                                // console.log("************************************Dégré = " + ReductionDegree + " et Rayon = " + radius);
+                               highlight(cLatLng, SingleRoadLat, SingleRoadLng, ReductionDegree, '#C00', radius);
+                                // radius = radius - 50;
+            
+                                if (radius < 45) {
+                                    // break;
+                                    console.log("stop");
+                                    // save_temp_data({place_id:place_id,location:[],status:'true'});
+                                      saveLocationFun();
+                                    clearInterval(inter);
+                                }
+                            // }
+                            }, 300);
 
-                //             $.each( resp[0].saveLocation , function( key, resplace ) {
-                //                 console.log(resplace);
-                //               });
-                              
-                //             // isSaveHighlight('#C00', resp.saveLocation);
 
-                //         }
-                //     },
-                //     error: function(e) {
-                //         console.log(e);
-                //     }
-                // });
-
-                var ReductionDegree = 0;
-                var radius = 300;
-                toastr.success("Veuillez patienter, les tracés sont en cours de traitement...");
-                var inter = setInterval(function() {
-                    // for (var i = 0; i <= 36000; i = i++) { 
-                    ReductionDegree += 10;
-
-                    if (ReductionDegree >= 360 && radius >= 45) {
-                        ReductionDegree = 0;
-                        radius = radius - 15;
-                        // clearInterval(inter);
-                        toastr.success("Veuillez patienter, les tracés sont toujours en cours de traitement...");
+                        }
+                    },
+                    error: function(e) {
+                        console.log(e);
                     }
-                    // console.log("************************************Dégré = " + ReductionDegree + " et Rayon = " + radius);
-                   highlight(cLatLng, SingleRoadLat, SingleRoadLng, ReductionDegree, '#C00', radius);
-                    // radius = radius - 50;
+                });
 
-                    if (radius < 45) {
-                        // break;
-                        console.log("stop");
-                        saveLocationFun();
-                        clearInterval(inter);
-                    }
-                // }
-                }, 300);
+                // saveLocationFun();
+
+               
+
                 // *********************
 
                 // highlight(cLatLng, SingleRoadLat, SingleRoadLng, -90, '#00FF00');
