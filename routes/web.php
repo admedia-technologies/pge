@@ -38,6 +38,8 @@ Route::post('/postdata',[App\Http\Controllers\Admin::class,'googledatastore']);
 
 Route::get('/isplace',[App\Http\Controllers\Admin::class,'googleisplace']);
 
+Route::post('/location/save/meta',[App\Http\Controllers\Admin::class,'location_save_meta']);
+
 
 Route::post('/getalllocations',[App\Http\Controllers\Admin::class,'getalllocationsbyuserid']);
 
