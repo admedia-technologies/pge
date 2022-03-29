@@ -95,8 +95,10 @@ class Admin extends Controller
             $check = DB::table('locations_meta')->where('location_id',$check[0]->id)->get();
             foreach ($check as $key => $value) {
                 // $check[$key]->location_data = json_decode($check[$key]->location_data);
-                $temp = json_decode($check[$key]->location_data);
-                $return = array_merge($return, $temp);
+                if(isset($check[$key]->location_data) && is_array(json_decode($check[$key]->location_data))){ 
+                    $temp = json_decode($check[$key]->location_data);
+                    $return = array_merge($return, $temp);
+                }
             }
         }
        return $return;
@@ -145,7 +147,9 @@ class Admin extends Controller
 
           if($check->count() > 0)
           {
-            $location_id = $check->update($data_for_insert);
+              if(isset($resp_one['location_categories']) && $resp_one['location_categories'] != ""){ 
+                $location_id = $check->update($data_for_insert);
+              }
             return Response::json(array(
                     'code'=>200
                 ));

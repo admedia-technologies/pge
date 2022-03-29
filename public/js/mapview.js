@@ -346,12 +346,65 @@ function getLocationsandStore(type) {
                 position: { lat: parseFloat(element.click_event_lat), lng: parseFloat(element.click_event_lng) }
             });
             MarkersArray.push(marker);
+
+            drow_line_bycatecore(element.click_event_place);
         });
     }).fail(function(resp) {
         console.log(resp);
         $("#error_field").html("Une erreur inattendue s'est produite lors de l'enregistrement de la localisation");
     });
 }
+
+
+    function drow_line_bycatecore(place_id) {
+
+        $.ajax({
+            type: "GET",
+            url: '/isplace', // This is what I have updated
+            // url: 'http://localhost/laravel-marker/drow-map.php', 
+            data: { place_id:place_id }, //'GhIJ9xm8VBG7KEAR3uboTDVu-L8'
+            dataType:'json',
+            success: function( resp ) {
+                console.log('resp');
+                console.log(resp);
+                if(resp.length){
+                    $.each( resp , function( key, resplace ) {
+                    isSaveHighlight('#C00', resplace);
+                    });
+                }
+            },
+            error: function(e) {
+                console.log(e);
+            }
+        });
+        
+    }
+
+    function isSaveHighlight( color,resp) {
+        var polyline = new google.maps.Polyline({
+            strokeColor: color, //'#C00'
+            strokeOpacity: 0.7,
+            strokeWeight: 3
+        });
+    
+        PolyLinesArrDirServices.push(polyline);
+    
+        var dirService = new google.maps.DirectionsService();
+        var dirRenderer = new google.maps.DirectionsRenderer({ suppressMarkers: false });
+    
+        allRenders.push(dirRenderer);
+    
+        newDirService = dirService;
+        newDirRender = dirRenderer;
+    
+        dirRenderer.setMap(map);
+        dirRenderer.setOptions({
+            polylineOptions: polyline,
+            suppressMarkers: true
+        });
+    
+        dirRenderer.setDirections(resp);
+    }
 
 function drawCircle(cLat, cLng) {
     new google.maps.Circle({
@@ -651,7 +704,7 @@ function initialize() {
         for (let index = 0; index < saveLocation.length; index++) {
 
             location.push(saveLocation[index]);
-            if(location.length == 15 || saveLocation.length == index+1){ 
+            if(location.length == 10 || saveLocation.length == index+1){ 
                 save_temp_data({place_id:place_id,location:location});
                 console.log(location);
                 location = [];
