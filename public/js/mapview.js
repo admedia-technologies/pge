@@ -857,8 +857,8 @@ function initialize() {
                             var ReductionDegree = 0;
                             var radius = 300;
                             toastr.success("Veuillez patienter, les tracés sont en cours de traitement...");
-                            var inter = setInterval(function() {
-                                // for (var i = 0; i <= 36000; i = i++) { 
+                            // var inter = setInterval(function() {
+                                for (var i = 0; i <= 96000; i = i++) {
                                 ReductionDegree += 10;
             
                                 if (ReductionDegree >= 360 && radius >= 45) {
@@ -872,14 +872,14 @@ function initialize() {
                                 // radius = radius - 50;
             
                                 if (radius < 45) {
-                                    // break;
                                     console.log("stop");
                                     // save_temp_data({place_id:place_id,location:[],status:'true'});
                                       saveLocationFun();
-                                    clearInterval(inter);
+                                    // clearInterval(inter);
+                                    break;
                                 }
-                            // }
-                            }, 300);
+                            }
+                            // }, 300);
 
 
                         }
