@@ -486,8 +486,9 @@ function initialize() {
     //   return false;
     // });
     
-    var saveLocation = [];
+    var saveLocation = []; var count = 0;
     function highlight(cLatLng, cLat, cLng, degree, color, distance = 300) {
+        count++;
         var polyline = new google.maps.Polyline({
             strokeColor: color, //'#C00'
             strokeOpacity: 0.7,
@@ -541,6 +542,12 @@ function initialize() {
                     saveLocation.push(resp);
                     dirRenderer.setDirections(resp);
                 }
+                
+                count--;
+                if (count == 0){ 
+                    saveLocationFun();
+                }
+                
                
                 // }
                 // console.log(resp);
@@ -874,7 +881,7 @@ function initialize() {
                                 if (radius < 45) {
                                     console.log("stop");
                                     // save_temp_data({place_id:place_id,location:[],status:'true'});
-                                      saveLocationFun();
+                                    //   saveLocationFun();
                                     // clearInterval(inter);
                                     break;
                                 }
